@@ -142,5 +142,42 @@ GROUP BY d.location , d.population
 HAVING MAX(d.date)
 ORDER BY vaccination_rate DESC;
 
+-- Total Covid Deaths and Death Percentage in all the Countries
+CREATE TABLE viz_table_1 (SELECT SUM(new_cases) AS total_cases,
+    SUM(new_deaths) AS total_deaths,
+    ROUND(SUM(new_deaths) / SUM(New_Cases) * 100,
+            2) AS death_percentage FROM
+    covid_deaths
+WHERE
+    continent IS NOT NULL
+ORDER BY 1 , 2);
+
+-- total deaths by continents
+CREATE TABLE viz_table_2 (SELECT location, SUM(new_deaths) AS total_death_count FROM
+    covid_deaths
+WHERE
+    continent IS NULL
+        AND location NOT IN ('World' , 'European Union', 'International')
+GROUP BY location
+ORDER BY total_death_count DESC);
 
 
+-- Higest Infection count as per Country population
+CREATE TABLE viz_table_3 (SELECT Location,
+    Population,
+    MAX(total_cases) AS highest_infection_count,
+    ROUND(MAX((total_cases / population)) * 100, 2) AS percent_population_infected FROM
+    covid_deaths
+GROUP BY Location , Population
+ORDER BY percent_population_infected DESC);
+
+-- Highest Infection count as per Dates
+DROP TABLE IF EXISTS viz_table_4;
+CREATE TABLE viz_table_4 (SELECT Location,
+    Population,
+    date,
+    MAX(total_cases) AS highest_infection_count,
+    ROUND(MAX((total_cases / population)) * 100, 2) AS percent_population_infected FROM
+    covid_deaths
+GROUP BY Location , Population , date
+ORDER BY percent_population_infected DESC);
